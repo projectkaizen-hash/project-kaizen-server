@@ -1,5 +1,40 @@
 import {defineField, defineType} from 'sanity'
 
+// Shared Portable Text config: both the description and the info panel use
+// the same editor (headings, quote, decorations, link annotations).
+const richTextBlocks = [
+  {
+    type: 'block',
+    styles: [
+      {title: 'Normal', value: 'normal'},
+      {title: 'H2', value: 'h2'},
+      {title: 'H3', value: 'h3'},
+      {title: 'Quote', value: 'blockquote'},
+    ],
+    marks: {
+      decorators: [
+        {title: 'Bold', value: 'strong'},
+        {title: 'Italic', value: 'em'},
+        {title: 'Underline', value: 'underline'},
+      ],
+      annotations: [
+        {
+          name: 'link',
+          title: 'Link',
+          type: 'object',
+          fields: [
+            {
+              name: 'href',
+              title: 'URL',
+              type: 'url',
+            },
+          ],
+        },
+      ],
+    },
+  },
+]
+
 export const projectType = defineType({
   name: 'project',
   title: 'Project',
@@ -21,47 +56,34 @@ export const projectType = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
-      name: 'type',
-      title: 'Type',
-      type: 'string',
-      options: {
-        list: [
-          {title: 'Competition', value: 'competition'},
-          {title: 'Building', value: 'building'},
-          {title: 'Interior', value: 'interior'},
-        ],
-      },
-      validation: (rule) => rule.required(),
-    }),
-    defineField({
       name: 'category',
       title: 'Category',
-      type: 'string',
-      options: {
-        list: [
-          {title: 'Architecture', value: 'architecture'},
-          {title: 'Graphic Design', value: 'graphic design'},
-          {title: 'Speculatives', value: 'speculatives'},
-        ],
-      },
+      type: 'reference',
+      to: [{type: 'category'}],
       validation: (rule) => rule.required(),
     }),
     defineField({
-      name: 'categoryLabel',
-      title: 'Category Label',
-      type: 'string',
-      validation: (rule) => rule.required(),
-    }),
-    defineField({
-      name: 'year',
-      title: 'Year',
-      type: 'string',
-    }),
-    defineField({
-      name: 'team',
-      title: 'Team',
+      name: 'subcategory',
+      title: 'Sub-categories',
       type: 'array',
-      of: [{type: 'string'}],
+      of: [{type: 'reference', to: [{type: 'subcategory'}]}],
+      description:
+        'Optional; e.g. "Fashion, Photography". The migration seeds these from existing category labels.',
+    }),
+    defineField({
+      name: 'description',
+      title: 'Description',
+      type: 'array',
+      of: richTextBlocks,
+      description: 'Rich-text description shown under the project title.',
+    }),
+    defineField({
+      name: 'info',
+      title: 'Project Info',
+      type: 'array',
+      of: richTextBlocks,
+      description:
+        'Rich text shown in the "Info +" panel on the project page. Falls back to placeholder text while empty.',
     }),
     defineField({
       name: 'thumbnail',
@@ -78,23 +100,6 @@ export const projectType = defineType({
       type: 'array',
       of: [{type: 'image', options: {hotspot: true}}],
       validation: (rule) => rule.required(),
-    }),
-    defineField({
-      name: 'link',
-      title: 'Link',
-      type: 'object',
-      fields: [
-        defineField({
-          name: 'label',
-          title: 'Label',
-          type: 'string',
-        }),
-        defineField({
-          name: 'href',
-          title: 'Href',
-          type: 'url',
-        }),
-      ],
     }),
   ],
 })

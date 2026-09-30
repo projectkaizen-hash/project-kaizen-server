@@ -21,6 +21,14 @@ export const personType = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: 'order',
+      title: 'Order',
+      type: 'number',
+      description: 'Position in the team list (1 = top). Lower numbers come first; people with the same number keep alphabetical order.',
+      initialValue: 10,
+      validation: (rule) => rule.integer().min(1),
+    }),
+    defineField({
       name: 'title',
       title: 'Title',
       type: 'string',
